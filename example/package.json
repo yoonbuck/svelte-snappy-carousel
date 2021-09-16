@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "scripts": {
     "build": "rollup -c",
-    "prebuild": "cd .. && npm run build",
     "dev": "rollup -c -w",
     "start": "sirv public --host",
     "validate": "svelte-check"
