@@ -1,9 +1,9 @@
 <script lang="ts">
   import { getContext, onMount, setContext } from "svelte";
-  import { element, loop } from "svelte/internal";
+  import { loop } from "svelte/internal";
   import type { CarouselContext } from "./context";
   import { key } from "./context";
-  import { makeTrajectory } from "./trajectory";
+  import { getTarget, getTrajectory } from "./trajectory";
   import { lateMountWarning } from "./warnings";
 
   export let position: number = 0;
@@ -78,13 +78,10 @@
     innerRelease?.(index);
   }
 
-  const damping: number = 0.5;
-  const attraction: number = 2;
-  const getTrajectory = makeTrajectory(0.02);
-
+  const targetDamping = 8;
   function getNearest(position: number, velocity: number) {
     // 1. get intended landing position
-    let targetPos = position + getTrajectory(velocity);
+    let targetPos = getTarget(position, velocity, targetDamping);
 
     // 2. get closest element
     let closestTarget = 0;
@@ -105,20 +102,12 @@
   }
 
   let innerRelease: ((target: number) => void) | null = null;
+  const scrollTime = 400;
 
   function scrollEffect(node: HTMLDivElement) {
-    enum State {
-      STOPPED,
-      HELD,
-      MOVING,
-    }
-
     let loopAborter: (() => void) | null = null;
-
     let velocity = 0;
-
-    let lastNow: number;
-    let target: number;
+    let startTime = 0;
 
     let pixelPosition: number;
 
@@ -137,34 +126,21 @@
       } else {
         position = targetIdx;
         target = itemElements[targetIdx]?.offsetLeft ?? 0;
+        velocity = 0;
       }
       updatePositionControlAvailability();
-      lastNow = performance.now();
+      startTime = performance.now();
+      const trajectory = getTrajectory(pixelPosition, target, velocity);
       loopAborter = loop((now: number) => {
-        let dt = Math.max(0, (now - lastNow) / 1000);
-
-        // calculate decay
-        let decay = Math.pow(1 - damping, dt);
-        velocity *= decay;
-
-        // calculate attraction velocity
-        let distance = target - pixelPosition;
-        let targetVelocity = attraction * distance * dt;
-
-        // mix new velocities
-        velocity = velocity * decay + targetVelocity * (1 - decay);
-
-        // apply velocity
-        pixelPosition += velocity;
-
-        // we're close enough, let's snap into place!
-        if (Math.abs(distance) < 1 && velocity < 0.1) {
+        let t = (now - startTime) / scrollTime;
+        if (t >= 1) {
           node.scrollLeft = target;
           loopAborter = null;
           return false;
         }
 
-        // apply position
+        pixelPosition = trajectory(t);
+        console.log("moving to", pixelPosition);
         node.scrollLeft = pixelPosition;
         return true;
       }).abort;
@@ -196,7 +172,7 @@
       console.log(dx);
       console.log(node.scrollLeft);
       node.scrollLeft += dx;
-      velocity = dx / (dTime || 1 / 60);
+      velocity = (dx * scrollTime) / (dTime || 1 / 60);
       evt.preventDefault();
     }
 
@@ -207,6 +183,9 @@
     let wheelScrollEndHandle = -1;
     function wheel(_evt: Event) {
       const evt = _evt as WheelEvent;
+      let time = evt.timeStamp;
+      let dTime = time - lastTime;
+      lastTime = time;
 
       let dy = evt.deltaY;
       let dx = evt.deltaX;
@@ -217,7 +196,7 @@
         evt.preventDefault();
       }
 
-      velocity = dx;
+      velocity = (dx * scrollTime) / (dTime || 1 / 60);
 
       grab();
       clearTimeout(wheelScrollEndHandle);
