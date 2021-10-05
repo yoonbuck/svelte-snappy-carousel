@@ -77,23 +77,30 @@
     innerRelease?.(index);
   }
 
-  const targetDamping = 8;
+  const targetDamping = 6;
   function getNearest(position: number, velocity: number) {
     // 1. get intended landing position
     let targetPos = getTarget(position, velocity, targetDamping);
 
-    // 2. get closest element
+    // 2. get element candidates
+    let targets = [
+      itemElements[visibleItem + 1],
+      itemElements[visibleItem],
+      itemElements[visibleItem - 1],
+    ];
+
+    // 3. get closest element
     let closestTarget = 0;
     let closestTargetDistance = Infinity;
     let closestIdx = 0;
-    itemElements.forEach((element, i) => {
+    targets.forEach((element, i) => {
       if (element) {
         let x = element.offsetLeft;
         let d = Math.abs(x - targetPos);
         if (d < closestTargetDistance) {
           closestTargetDistance = d;
           closestTarget = x;
-          closestIdx = i;
+          closestIdx = visibleItem + 1 - i;
         }
       }
     });
