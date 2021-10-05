@@ -6,7 +6,7 @@
   import { getTarget, getTrajectory } from "./trajectory";
   import { lateMountWarning } from "./warnings";
 
-  export let position: number = 0;
+  export let visibleItem: number = 0;
   let count: number = 0;
   let previousAvailable = false;
   let nextAvailable = false;
@@ -27,8 +27,8 @@
   }
 
   function updatePositionControlAvailability() {
-    previousAvailable = position !== 0;
-    nextAvailable = position !== count - 1;
+    previousAvailable = visibleItem !== 0;
+    nextAvailable = visibleItem !== count - 1;
   }
 
   const itemElements: (HTMLDivElement | null)[] = [];
@@ -66,12 +66,12 @@
 
   function previous() {
     if (previousAvailable) {
-      goTo(position - 1);
+      goTo(visibleItem - 1);
     }
   }
   function next() {
     if (nextAvailable) {
-      goTo(position + 1);
+      goTo(visibleItem + 1);
     }
   }
   function goTo(index: number) {
@@ -122,9 +122,9 @@
       if (targetIdx === undefined) {
         let nearest = getNearest(pixelPosition, velocity);
         target = nearest.target;
-        position = nearest.index;
+        visibleItem = nearest.index;
       } else {
-        position = targetIdx;
+        visibleItem = targetIdx;
         target = itemElements[targetIdx]?.offsetLeft ?? 0;
         velocity = 0;
       }
@@ -223,7 +223,7 @@
     {previousAvailable}
     {nextAvailable}
     {goTo}
-    {position}
+    position={visibleItem}
     {count}
     name="inner-controls"
   />
@@ -234,7 +234,7 @@
   {previousAvailable}
   {nextAvailable}
   {goTo}
-  {position}
+  position={visibleItem}
   {count}
   name="outer-controls"
 />
