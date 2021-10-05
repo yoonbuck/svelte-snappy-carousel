@@ -57,7 +57,6 @@
 
   onMount(() => {
     hasMounted = true;
-    console.log("Carousel mounted!");
 
     if (count > 1) {
       nextAvailable = true;
@@ -140,7 +139,6 @@
         }
 
         pixelPosition = trajectory(t);
-        console.log("moving to", pixelPosition);
         node.scrollLeft = pixelPosition;
         return true;
       }).abort;
@@ -169,8 +167,6 @@
       let dTime = time - lastTime;
       lastX = x;
       lastTime = time;
-      console.log(dx);
-      console.log(node.scrollLeft);
       node.scrollLeft += dx;
       velocity = (dx * scrollTime) / (dTime || 1 / 60);
       evt.preventDefault();
