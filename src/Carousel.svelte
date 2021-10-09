@@ -246,5 +246,6 @@
   .carousel-container {
     display: flex;
     overflow: auto;
+    position: relative;
   }
 </style>
