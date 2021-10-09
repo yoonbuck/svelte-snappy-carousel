@@ -153,6 +153,7 @@
     innerRelease = release;
 
     let lastX: number;
+    let lastY: number;
     let lastTime: number;
     function touchStart(evt: TouchEvent) {
       // let's just not even attempt multiple touches
@@ -160,22 +161,35 @@
 
       grab();
       lastX = evt.touches[0].pageX;
+      lastY = evt.touches[0].pageY;
       lastTime = evt.timeStamp;
-      evt.preventDefault();
     }
 
     function touchMove(evt: TouchEvent) {
       // let's just not even attempt multiple touches
       if (evt.touches.length !== 1) return;
 
+      // if the user is already scrolling vertically, return
+      if (!evt.cancelable) return;
+
       let x = evt.touches[0].pageX;
+      let y = evt.touches[0].pageY;
       let time = evt.timeStamp;
       let dx = lastX - x;
+      let dy = lastY - y;
       let dTime = time - lastTime;
       lastX = x;
+      lastY = y;
+
+      if (Math.abs(dy) > 2 * Math.abs(dx)) {
+        // mostly vertical: ignore
+        return;
+      }
+
       lastTime = time;
       node.scrollLeft += dx;
       velocity = (dx * scrollTime) / (dTime || 1 / 60);
+
       evt.preventDefault();
     }
 
@@ -196,7 +210,9 @@
       if (evt.shiftKey && Math.abs(dy) > Math.abs(dx)) {
         dx = dy;
         node.scrollLeft += dx;
-        evt.preventDefault();
+        if (evt.cancelable) {
+          evt.preventDefault();
+        }
       }
 
       velocity = (dx * scrollTime) / (dTime || 1 / 60);
