@@ -42,7 +42,6 @@ export function getTrajectory(
   target: number,
   velocity: number
 ): (t: number) => number {
-  console.log("making trajectory:", { position, target, velocity });
   target -= position;
   const a = velocity - 2 * target;
   const b = 3 * target - 2 * velocity;
