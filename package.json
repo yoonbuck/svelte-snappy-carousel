@@ -34,13 +34,23 @@
     "typescript": "4.3"
   },
   "keywords": [
-    "svelte"
+    "svelte",
+    "carousel",
+    "touch"
   ],
   "description": "Touch-friendly snappy horizontal carousel for svelte.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "directories": {
     "example": "example"
   },
-  "author": "",
-  "license": "MIT"
+  "author": "Jordan Yoon-Buck <jordan@yoonbuck.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yoonbuck/svelte-snappy-carousel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yoonbuck/svelte-snappy-carousel/issues"
+  },
+  "homepage": "https://github.com/yoonbuck/svelte-snappy-carousel#readme"
 }
