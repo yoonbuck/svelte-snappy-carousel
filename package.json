@@ -36,7 +36,7 @@
   "keywords": [
     "svelte"
   ],
-  "description": "A base for building shareable Svelte components written in Typescript.",
+  "description": "Touch-friendly snappy horizontal carousel for svelte.",
   "version": "0.1.0",
   "directories": {
     "example": "example"
