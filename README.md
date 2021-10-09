@@ -1,26 +1,78 @@
-# svelte-typescript-component-template
+# svelte-snappy-carousel
 
-A base for building shareable Svelte components written in Typescript.
+Touch-friendly snappy horizontal carousel for svelte.
 
-This is based on [sveltejs/component-template](https://github.com/sveltejs/component-template) and allows consumers to import the .svelte components without requiring Typescript (see ["Consuming Components"](#consuming-components) below).
+[Demo](https://svelte-snappy-carousel.dev.yoonbuck.com/)
 
-```bash
-npx degit mattjennings/svelte-typescript-component-template#main my-component
-cd my-component
-npm install # or yarn
+## Usage
+
+```svelte
+<script lang="ts">
+  import { Carousel, CarouselItem } from "svelte-snappy-carousel";
+</script>
+
+<Carousel>
+  <!-- CarouselItems represent carousel panes -->
+  <CarouselItem>
+    <h1>Pane 1</h1>
+    <p>...</p>
+  </CarouselItem>
+  <CarouselItem>
+    <h1>Pane 2</h1>
+    <p>...</p>
+  </CarouselItem>
+  <CarouselItem>
+    <h1>Pane 3</h1>
+    <p>...</p>
+  </CarouselItem>
+</Carousel>
 ```
 
-Your component's source code lives in `src/Component.svelte`.
+## Adding controls
 
-You can create a package that exports multiple components by adding them to the `src` directory and editing `src/index.ts` to reexport them as named exports.
+Use `slot="inner-controls"` or `slot="outer-controls"` to add controls to the carousel.
 
-## Setting Up
+`inner-controls` will be placed inside the carousel container; `outer-controls` will be after.
 
-- Run `npm init` (or `yarn init`)
-- Replace this README with your own
+```svelte
+<Carousel>
+  <!-- ... -->
+  <div
+    slot="inner-controls"
+    class="controls"
+    let:position
+    let:count
+    let:previous
+    let:previousAvailable
+    let:next
+    let:nextAvailable
+  >
+    <button on:click={previous} disabled={!previousAvailable}>←</button>
+    {position + 1} / {count}
+    <button on:click={next} disabled={!nextAvailable}>→</button>
+  </div>
+</Carousel>
 
-## Consuming Components
+<style>
+  .controls {
+    /* e.g., position absolutely inside carousel container */
+  }
+</style>
+```
 
-Your package.json has a `"svelte"` field pointing to `src/index.js`, which allows Svelte apps to import the source code directly, if they are using a bundler plugin like [rollup-plugin-svelte](https://github.com/sveltejs/rollup-plugin-svelte) or [svelte-loader](https://github.com/sveltejs/svelte-loader) (where [`resolve.mainFields`](https://webpack.js.org/configuration/resolve/#resolve-mainfields) in your webpack config includes `"svelte"`). **This is recommended.**
+# Limitations
 
-For everyone else, `npm run build` will bundle your component's source code into a plain JavaScript module (`dist/index.mjs`) and a UMD script (`dist/index.js`). This will happen automatically when you publish your component to npm, courtesy of the `prepublishOnly` hook in package.json.
+These are some
+things to watch out for. Note that these limitations might change in the future.
+
+- **No nested Carousels**
+
+  You can't place a `<Carousel>` inside another `<Carousel>`
+
+- **No dynamic content**
+
+  You shouldn't add or remove `<CarouselItem>`s after the parent `<Carousel>` is mounted.
+
+  It's okay to use an `{#each}` block if you know the backing array won't change. The contents of the array can change, as long as the `(key)`s stay the same, and the array doesn't grow or shrink.
+
+  If you're loading content asynchronously, you should either wrap the entire `<Carousel>` in your `{#await}` block, or place `{#await}` blocks inside of individual `<CarouselItem>` components.
