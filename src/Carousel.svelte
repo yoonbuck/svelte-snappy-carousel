@@ -118,6 +118,7 @@
     let pixelPosition: number;
 
     function grab() {
+      velocity = 0;
       loopAborter?.();
     }
 
@@ -200,6 +201,11 @@
     let wheelScrollEndHandle = -1;
     function wheel(_evt: Event) {
       const evt = _evt as WheelEvent;
+
+      if (!evt.cancelable) {
+        return;
+      }
+
       let time = evt.timeStamp;
       let dTime = time - lastTime;
       lastTime = time;
@@ -209,13 +215,16 @@
 
       if (evt.shiftKey && Math.abs(dy) > Math.abs(dx)) {
         dx = dy;
-        node.scrollLeft += dx;
-        if (evt.cancelable) {
-          evt.preventDefault();
-        }
       }
 
+      if (Math.abs(dy) > 2 * Math.abs(dx)) {
+        return;
+      }
+
+      node.scrollLeft += dx;
       velocity = (dx * scrollTime) / (dTime || 1 / 60);
+
+      evt.preventDefault();
 
       grab();
       clearTimeout(wheelScrollEndHandle);
@@ -261,7 +270,7 @@
 <style>
   .carousel-container {
     display: flex;
-    overflow: auto;
+    overflow: hidden;
     position: relative;
   }
 </style>
