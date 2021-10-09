@@ -22,5 +22,6 @@
 <style>
   .item-container {
     flex: 0 0 100%;
+    width: 100%;
   }
 </style>
